@@ -1,0 +1,37 @@
+[run]
+source = src/spec_kit
+omit = 
+    */tests/*
+    */test_*
+    */__init__.py
+    */migrations/*
+    */venv/*
+    */env/*
+    */.venv/*
+    setup.py
+    conftest.py
+branch = True
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod
+    pass
+    \.\.\.
+show_missing = True
+skip_covered = False
+precision = 2
+
+[html]
+directory = htmlcov
+
+[xml]
+output = coverage.xml
