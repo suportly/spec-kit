@@ -1,248 +1,174 @@
 # Spec-Kit
 
-A comprehensive specification and testing toolkit for Python projects with FastAPI integration.
+A Next.js frontend with FastAPI backend project for specification management.
 
-## Features
+## Development Setup
 
-- 🚀 **FastAPI Integration**: Built-in support for FastAPI applications
-- 🧪 **Comprehensive Testing**: Advanced testing utilities with pytest
-- 📊 **Code Coverage**: Built-in coverage reporting with pytest-cov
-- 🔧 **Development Tools**: Pre-configured development environment
-- 📝 **CLI Interface**: Command-line tools for project management
-- 🏗️ **Project Structure**: Standardized project layout and configuration
+### Prerequisites
 
-## Installation
+- Python 3.8+
+- Node.js 16+
+- npm or yarn
+- Git
 
-### Production Installation
-
-```bash
-pip install spec-kit
-```
-
-### Development Installation
+### Quick Start
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/suportly/spec-kit.git
+git clone <repository-url>
 cd spec-kit
 ```
 
-2. Set up virtual environment:
+2. Setup pre-commit hooks:
 ```bash
-make setup-env
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+chmod +x scripts/setup-hooks.sh
+./scripts/setup-hooks.sh
 ```
 
-3. Install development dependencies:
+3. Install dependencies:
+
+**Frontend:**
 ```bash
-make install-dev
+cd frontend
+npm install
 ```
 
-## Quick Start
-
-### Initialize a New Project
-
+**Backend:**
 ```bash
-spec-kit init my-project
-cd my-project
+cd backend
+pip install -r requirements.txt
 ```
 
-### Run Tests
+### Pre-commit Hooks
 
-```bash
-# Run all tests
-make test
+This project uses pre-commit hooks to ensure code quality. The hooks will automatically run on each commit and include:
 
-# Run tests with coverage
-make test-cov
+#### Python (Backend)
+- **Black**: Code formatting
+- **isort**: Import sorting
+- **flake8**: Linting and style checking
+- **mypy**: Type checking
+- **pytest**: Running tests
 
-# Run only unit tests
-make test-unit
+#### JavaScript/TypeScript (Frontend)
+- **Prettier**: Code formatting
+- **ESLint**: Linting and style checking
+- **TypeScript**: Type checking
+- **Jest**: Running tests
 
-# Run only integration tests
-make test-integration
+#### General
+- **Trailing whitespace**: Removes trailing whitespace
+- **End of file fixer**: Ensures files end with newline
+- **YAML/JSON validation**: Validates syntax
+- **Merge conflict detection**: Prevents committing merge conflicts
+- **Large file detection**: Prevents committing large files
+- **Commit message validation**: Ensures conventional commit format
+
+### Commit Message Format
+
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+```
+type(scope): description
+
+[optional body]
+
+[optional footer(s)]
 ```
 
-### Code Quality
+**Types:**
+- `feat`: A new feature
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Changes that do not affect the meaning of the code
+- `refactor`: A code change that neither fixes a bug nor adds a feature
+- `test`: Adding missing tests or correcting existing tests
+- `chore`: Changes to the build process or auxiliary tools
+- `perf`: A code change that improves performance
+- `ci`: Changes to CI configuration files and scripts
+- `build`: Changes that affect the build system or external dependencies
+- `revert`: Reverts a previous commit
 
+**Examples:**
 ```bash
-# Format code
-make format
-
-# Run linting
-make lint
-
-# Run security checks
-make security
+feat(auth): add user authentication
+fix(api): resolve database connection issue
+docs: update installation instructions
+refactor(utils): simplify helper functions
 ```
 
-## Project Structure
+### Manual Hook Execution
+
+Run all hooks manually:
+```bash
+pre-commit run --all-files
+```
+
+Run specific hook:
+```bash
+pre-commit run black --all-files
+pre-commit run eslint --all-files
+```
+
+Update hooks to latest versions:
+```bash
+pre-commit autoupdate
+```
+
+### Skipping Hooks (Not Recommended)
+
+In rare cases, you can skip hooks:
+```bash
+git commit --no-verify
+```
+
+**Note:** Only skip hooks when absolutely necessary and ensure code quality through other means.
+
+### Project Structure
 
 ```
 spec-kit/
-├── src/
-│   └── spec_kit/
-│       ├── __init__.py
-│       └── cli.py
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   └── test_example.py
-├── docs/
-├── requirements.txt
-├── requirements-dev.txt
-├── setup.py
-├── pyproject.toml
-├── pytest.ini
-├── .coveragerc
-└── Makefile
+├── frontend/          # Next.js frontend application
+├── backend/           # FastAPI backend application
+├── scripts/           # Development and deployment scripts
+├── .pre-commit-config.yaml  # Pre-commit configuration
+├── pyproject.toml     # Python project configuration
+└── README.md          # This file
 ```
 
-## Configuration
+### Development Workflow
 
-### Testing Configuration
+1. Create a new branch for your feature/fix
+2. Make your changes
+3. Run tests locally: `npm test` (frontend) or `pytest` (backend)
+4. Commit your changes (hooks will run automatically)
+5. Push your branch and create a pull request
 
-The project uses pytest with the following configuration:
+### Troubleshooting
 
-- **Test Discovery**: Automatic discovery of test files matching `test_*.py` or `*_test.py`
-- **Coverage**: Minimum 80% coverage requirement
-- **Markers**: Support for `unit`, `integration`, `slow`, `api`, and `database` test markers
-- **Async Support**: Built-in support for async tests with `pytest-asyncio`
+**Pre-commit hooks failing:**
+1. Check the error messages in the terminal
+2. Fix the issues (formatting, linting, tests)
+3. Stage the fixed files and commit again
 
-### Code Quality Tools
+**Hook installation issues:**
+1. Ensure you have Python 3.8+ and Node.js 16+ installed
+2. Run the setup script again: `./scripts/setup-hooks.sh`
+3. Check that all dependencies are installed
 
-- **Black**: Code formatting with 88 character line length
-- **isort**: Import sorting compatible with Black
-- **flake8**: Linting and style checking
-- **mypy**: Static type checking
-- **bandit**: Security vulnerability scanning
+**Commit message validation failing:**
+1. Ensure your commit message follows the conventional commit format
+2. Use the correct type and include a clear description
+3. See examples above for reference
 
-## Available Commands
-
-### Make Commands
-
-```bash
-make help           # Show available commands
-make setup-env      # Setup virtual environment
-make install        # Install production dependencies
-make install-dev    # Install development dependencies
-make test           # Run tests
-make test-cov       # Run tests with coverage
-make lint           # Run linting
-make format         # Format code
-make clean          # Clean build artifacts
-make build          # Build package
-make docs           # Generate documentation
-```
-
-### CLI Commands
-
-```bash
-spec-kit --help     # Show CLI help
-spec-kit version    # Show version information
-spec-kit init       # Initialize new project
-spec-kit test       # Run tests
-spec-kit info       # Show project information
-```
-
-## Testing
-
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src/spec_kit --cov-report=html
-
-# Run specific test markers
-pytest -m "unit"           # Unit tests only
-pytest -m "integration"    # Integration tests only
-pytest -m "not slow"       # Exclude slow tests
-```
-
-### Test Markers
-
-- `@pytest.mark.unit`: Unit tests
-- `@pytest.mark.integration`: Integration tests
-- `@pytest.mark.slow`: Slow-running tests
-- `@pytest.mark.api`: API-related tests
-- `@pytest.mark.database`: Database-dependent tests
-
-### Writing Tests
-
-```python
-import pytest
-from spec_kit import get_version
-
-@pytest.mark.unit
-def test_get_version():
-    """Test version retrieval."""
-    version = get_version()
-    assert isinstance(version, str)
-    assert len(version) > 0
-
-@pytest.mark.asyncio
-async def test_async_function():
-    """Test async functionality."""
-    result = await some_async_function()
-    assert result is not None
-```
-
-## Development Workflow
-
-1. **Setup Environment**:
-   ```bash
-   make setup-env
-   source venv/bin/activate
-   make install-dev
-   ```
-
-2. **Make Changes**: Edit code in `src/spec_kit/`
-
-3. **Run Tests**:
-   ```bash
-   make test-cov
-   ```
-
-4. **Check Code Quality**:
-   ```bash
-   make format
-   make lint
-   ```
-
-5. **Commit Changes**:
-   ```bash
-   git add .
-   git commit -m "feat: add new feature"
-   ```
-
-## Contributing
+### Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/new-feature`
-3. Make your changes and add tests
-4. Ensure tests pass: `make test`
-5. Ensure code quality: `make lint`
-6. Commit your changes: `git commit -m "feat: add new feature"`
-7. Push to the branch: `git push origin feature/new-feature`
-8. Submit a pull request
+2. Create a feature branch
+3. Follow the development workflow
+4. Ensure all hooks pass
+5. Submit a pull request
 
-## License
+### License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-For support, please contact the Suportly team at team@suportly.com or create an issue on GitHub.
-
-## Changelog
-
-### v0.1.0 (Initial Release)
-
-- Initial project structure
-- Basic CLI interface
-- Testing framework setup
-- Development tools configuration
-- Documentation and examples
+[Add your license information here]

@@ -1,0 +1,50 @@
+# Custom pre-commit hooks configuration
+# This file defines custom hooks that can be used by other projects
+
+- id: validate-commit-msg
+  name: Validate Commit Message
+  description: Validates commit messages follow conventional commit format
+  entry: scripts/validate-commit.sh
+  language: script
+  stages: [commit-msg]
+  pass_filenames: false
+
+- id: frontend-lint
+  name: Frontend Lint
+  description: Run ESLint on frontend files
+  entry: bash -c 'cd frontend && npm run lint'
+  language: system
+  files: ^frontend/.*\.(js|jsx|ts|tsx)$
+  pass_filenames: false
+
+- id: frontend-format
+  name: Frontend Format
+  description: Run Prettier on frontend files
+  entry: bash -c 'cd frontend && npm run format'
+  language: system
+  files: ^frontend/.*\.(js|jsx|ts|tsx|json|css|scss|md)$
+  pass_filenames: false
+
+- id: backend-lint
+  name: Backend Lint
+  description: Run flake8 on backend Python files
+  entry: bash -c 'cd backend && python -m flake8 .'
+  language: system
+  files: ^backend/.*\.py$
+  pass_filenames: false
+
+- id: backend-format
+  name: Backend Format
+  description: Run black and isort on backend Python files
+  entry: bash -c 'cd backend && python -m black . && python -m isort .'
+  language: system
+  files: ^backend/.*\.py$
+  pass_filenames: false
+
+- id: security-check
+  name: Security Check
+  description: Run security checks on dependencies
+  entry: bash -c 'cd backend && python -m safety check || true; cd ../frontend && npm audit --audit-level moderate || true'
+  language: system
+  pass_filenames: false
+  stages: [push]
