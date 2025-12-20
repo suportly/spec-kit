@@ -1,1 +1,3 @@
-"""Unit tests for speckit - mocked dependencies."""
+"""Unit tests package."""
+
+# Unit test utilities and fixtures specific to unit testing
