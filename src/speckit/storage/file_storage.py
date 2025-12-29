@@ -371,6 +371,61 @@ class FileStorage(StorageBase):
         return feature_path
 
     # =========================================================================
+    # Content Parsing (for external content)
+    # =========================================================================
+
+    def load_specification_from_content(
+        self, content: str, feature_id: str = "external"
+    ) -> Optional[Specification]:
+        """Parse specification from markdown content.
+
+        Args:
+            content: Markdown content to parse.
+            feature_id: Feature identifier (defaults to 'external').
+
+        Returns:
+            Parsed Specification or None if parsing fails.
+        """
+        try:
+            return self._parse_specification(content, feature_id)
+        except Exception:
+            return None
+
+    def load_plan_from_content(
+        self, content: str, feature_id: str = "external"
+    ) -> Optional[TechnicalPlan]:
+        """Parse technical plan from markdown content.
+
+        Args:
+            content: Markdown content to parse.
+            feature_id: Feature identifier (defaults to 'external').
+
+        Returns:
+            Parsed TechnicalPlan or None if parsing fails.
+        """
+        try:
+            return self._parse_plan(content, feature_id)
+        except Exception:
+            return None
+
+    def load_tasks_from_content(
+        self, content: str, feature_id: str = "external"
+    ) -> Optional[TaskBreakdown]:
+        """Parse task breakdown from markdown content.
+
+        Args:
+            content: Markdown content to parse.
+            feature_id: Feature identifier (defaults to 'external').
+
+        Returns:
+            Parsed TaskBreakdown or None if parsing fails.
+        """
+        try:
+            return self._parse_tasks(content, feature_id)
+        except Exception:
+            return None
+
+    # =========================================================================
     # Utility Methods
     # =========================================================================
 
