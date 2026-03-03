@@ -44,6 +44,12 @@ env/
 .genreleases/
 *.zip
 sdd-*/
+docs/dev
 
 # Test output
 test_output
+
+# Extension system
+.specify/extensions/.cache/
+.specify/extensions/.backup/
+.specify/extensions/*/local-config.yml

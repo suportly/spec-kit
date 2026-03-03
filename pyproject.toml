@@ -31,11 +31,13 @@ dependencies = [
     # Templates and config files
     "jinja2>=3.0.0",
     "pyyaml>=6.0.0",
+    "click>=8.1",
     # HTTP client (for specify_cli compatibility)
     "httpx[socks]",
     "platformdirs",
     "readchar",
     "truststore>=0.10.4",
+    "packaging>=23.0",
 ]
 
 [project.optional-dependencies]
@@ -124,4 +126,3 @@ python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
-
