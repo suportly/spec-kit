@@ -5,7 +5,6 @@ This module provides tools to create and manage project constitutions
 that define guiding principles for development.
 """
 
-from typing import Optional
 
 from speckit.llm import LiteLLMProvider
 from speckit.schemas import Constitution
@@ -35,7 +34,7 @@ class ConstitutionManager:
     def create(
         self,
         project_name: str,
-        seed_principles: Optional[list[str]] = None,
+        seed_principles: list[str] | None = None,
         interactive: bool = False,
     ) -> Constitution:
         """
@@ -71,7 +70,7 @@ class ConstitutionManager:
     async def create_async(
         self,
         project_name: str,
-        seed_principles: Optional[list[str]] = None,
+        seed_principles: list[str] | None = None,
         interactive: bool = False,
     ) -> Constitution:
         """Async version of create()."""
@@ -90,7 +89,7 @@ class ConstitutionManager:
         constitution.project_name = project_name
         return constitution
 
-    def load(self) -> Optional[Constitution]:
+    def load(self) -> Constitution | None:
         """Load existing constitution from storage."""
         return self.storage.load_constitution()
 

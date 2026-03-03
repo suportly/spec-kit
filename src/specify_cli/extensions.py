@@ -6,19 +6,19 @@ Extensions are modular packages that add commands and functionality to spec-kit
 without bloating the core framework.
 """
 
-import json
 import hashlib
+import json
+import re
+import shutil
 import tempfile
 import zipfile
-import shutil
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional, Dict, List, Any
-from datetime import datetime, timezone
-import re
+from typing import Any
 
 import yaml
 from packaging import version as pkg_version
-from packaging.specifiers import SpecifierSet, InvalidSpecifier
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 
 
 class ExtensionError(Exception):
@@ -58,7 +58,7 @@ class ExtensionManifest:
     def _load_yaml(self, path: Path) -> dict:
         """Load YAML file safely."""
         try:
-            with open(path, 'r') as f:
+            with open(path) as f:
                 return yaml.safe_load(f) or {}
         except yaml.YAMLError as e:
             raise ValidationError(f"Invalid YAML in {path}: {e}")
@@ -146,12 +146,12 @@ class ExtensionManifest:
         return self.data["requires"]["speckit_version"]
 
     @property
-    def commands(self) -> List[Dict[str, Any]]:
+    def commands(self) -> list[dict[str, Any]]:
         """Get list of provided commands."""
         return self.data["provides"]["commands"]
 
     @property
-    def hooks(self) -> Dict[str, Any]:
+    def hooks(self) -> dict[str, Any]:
         """Get hook definitions."""
         return self.data.get("hooks", {})
 
@@ -186,7 +186,7 @@ class ExtensionRegistry:
             }
 
         try:
-            with open(self.registry_path, 'r') as f:
+            with open(self.registry_path) as f:
                 return json.load(f)
         except (json.JSONDecodeError, FileNotFoundError):
             # Corrupted or missing registry, start fresh
@@ -210,7 +210,7 @@ class ExtensionRegistry:
         """
         self.data["extensions"][extension_id] = {
             **metadata,
-            "installed_at": datetime.now(timezone.utc).isoformat()
+            "installed_at": datetime.now(UTC).isoformat()
         }
         self._save()
 
@@ -224,7 +224,7 @@ class ExtensionRegistry:
             del self.data["extensions"][extension_id]
             self._save()
 
-    def get(self, extension_id: str) -> Optional[dict]:
+    def get(self, extension_id: str) -> dict | None:
         """Get extension metadata from registry.
 
         Args:
@@ -235,7 +235,7 @@ class ExtensionRegistry:
         """
         return self.data["extensions"].get(extension_id)
 
-    def list(self) -> Dict[str, dict]:
+    def list(self) -> dict[str, dict]:
         """Get all installed extensions.
 
         Returns:
@@ -498,7 +498,7 @@ class ExtensionManager:
 
         return True
 
-    def list_installed(self) -> List[Dict[str, Any]]:
+    def list_installed(self) -> list[dict[str, Any]]:
         """List all installed extensions with metadata.
 
         Returns:
@@ -537,7 +537,7 @@ class ExtensionManager:
 
         return result
 
-    def get_extension(self, extension_id: str) -> Optional[ExtensionManifest]:
+    def get_extension(self, extension_id: str) -> ExtensionManifest | None:
         """Get manifest for an installed extension.
 
         Args:
@@ -815,7 +815,7 @@ class CommandRegistrar:
         manifest: ExtensionManifest,
         extension_dir: Path,
         project_root: Path
-    ) -> List[str]:
+    ) -> list[str]:
         """Register extension commands for a specific agent.
 
         Args:
@@ -886,7 +886,7 @@ class CommandRegistrar:
         manifest: ExtensionManifest,
         extension_dir: Path,
         project_root: Path
-    ) -> Dict[str, List[str]]:
+    ) -> dict[str, list[str]]:
         """Register extension commands for all detected agents.
 
         Args:
@@ -922,7 +922,7 @@ class CommandRegistrar:
         manifest: ExtensionManifest,
         extension_dir: Path,
         project_root: Path
-    ) -> List[str]:
+    ) -> list[str]:
         """Register extension commands for Claude Code agent.
 
         Args:
@@ -1017,12 +1017,12 @@ class ExtensionCatalog:
         try:
             metadata = json.loads(self.cache_metadata_file.read_text())
             cached_at = datetime.fromisoformat(metadata.get("cached_at", ""))
-            age_seconds = (datetime.now(timezone.utc) - cached_at).total_seconds()
+            age_seconds = (datetime.now(UTC) - cached_at).total_seconds()
             return age_seconds < self.CACHE_DURATION
         except (json.JSONDecodeError, ValueError, KeyError):
             return False
 
-    def fetch_catalog(self, force_refresh: bool = False) -> Dict[str, Any]:
+    def fetch_catalog(self, force_refresh: bool = False) -> dict[str, Any]:
         """Fetch extension catalog from URL or cache.
 
         Args:
@@ -1045,8 +1045,8 @@ class ExtensionCatalog:
         catalog_url = self.get_catalog_url()
 
         try:
-            import urllib.request
             import urllib.error
+            import urllib.request
 
             with urllib.request.urlopen(catalog_url, timeout=10) as response:
                 catalog_data = json.loads(response.read())
@@ -1061,7 +1061,7 @@ class ExtensionCatalog:
 
             # Save cache metadata
             metadata = {
-                "cached_at": datetime.now(timezone.utc).isoformat(),
+                "cached_at": datetime.now(UTC).isoformat(),
                 "catalog_url": catalog_url,
             }
             self.cache_metadata_file.write_text(json.dumps(metadata, indent=2))
@@ -1075,11 +1075,11 @@ class ExtensionCatalog:
 
     def search(
         self,
-        query: Optional[str] = None,
-        tag: Optional[str] = None,
-        author: Optional[str] = None,
+        query: str | None = None,
+        tag: str | None = None,
+        author: str | None = None,
         verified_only: bool = False,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search catalog for extensions.
 
         Args:
@@ -1126,7 +1126,7 @@ class ExtensionCatalog:
 
         return results
 
-    def get_extension_info(self, extension_id: str) -> Optional[Dict[str, Any]]:
+    def get_extension_info(self, extension_id: str) -> dict[str, Any] | None:
         """Get detailed information about a specific extension.
 
         Args:
@@ -1143,7 +1143,7 @@ class ExtensionCatalog:
 
         return None
 
-    def download_extension(self, extension_id: str, target_dir: Optional[Path] = None) -> Path:
+    def download_extension(self, extension_id: str, target_dir: Path | None = None) -> Path:
         """Download extension ZIP from catalog.
 
         Args:
@@ -1156,8 +1156,8 @@ class ExtensionCatalog:
         Raises:
             ExtensionError: If extension not found or download fails
         """
-        import urllib.request
         import urllib.error
+        import urllib.request
 
         # Get extension info from catalog
         ext_info = self.get_extension_info(extension_id)
@@ -1196,7 +1196,7 @@ class ExtensionCatalog:
 
         except urllib.error.URLError as e:
             raise ExtensionError(f"Failed to download extension from {download_url}: {e}")
-        except IOError as e:
+        except OSError as e:
             raise ExtensionError(f"Failed to save extension ZIP: {e}")
 
     def clear_cache(self):
@@ -1228,7 +1228,7 @@ class ConfigManager:
         self.extension_id = extension_id
         self.extension_dir = project_root / ".specify" / "extensions" / extension_id
 
-    def _load_yaml_config(self, file_path: Path) -> Dict[str, Any]:
+    def _load_yaml_config(self, file_path: Path) -> dict[str, Any]:
         """Load configuration from YAML file.
 
         Args:
@@ -1245,7 +1245,7 @@ class ConfigManager:
         except (yaml.YAMLError, OSError):
             return {}
 
-    def _get_extension_defaults(self) -> Dict[str, Any]:
+    def _get_extension_defaults(self) -> dict[str, Any]:
         """Get default configuration from extension manifest.
 
         Returns:
@@ -1258,7 +1258,7 @@ class ConfigManager:
         manifest_data = self._load_yaml_config(manifest_path)
         return manifest_data.get("config", {}).get("defaults", {})
 
-    def _get_project_config(self) -> Dict[str, Any]:
+    def _get_project_config(self) -> dict[str, Any]:
         """Get project-level configuration.
 
         Returns:
@@ -1267,7 +1267,7 @@ class ConfigManager:
         config_file = self.extension_dir / f"{self.extension_id}-config.yml"
         return self._load_yaml_config(config_file)
 
-    def _get_local_config(self) -> Dict[str, Any]:
+    def _get_local_config(self) -> dict[str, Any]:
         """Get local configuration (gitignored, machine-specific).
 
         Returns:
@@ -1276,7 +1276,7 @@ class ConfigManager:
         config_file = self.extension_dir / "local-config.yml"
         return self._load_yaml_config(config_file)
 
-    def _get_env_config(self) -> Dict[str, Any]:
+    def _get_env_config(self) -> dict[str, Any]:
         """Get configuration from environment variables.
 
         Environment variables follow the pattern:
@@ -1314,7 +1314,7 @@ class ConfigManager:
 
         return env_config
 
-    def _merge_configs(self, base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    def _merge_configs(self, base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
         """Recursively merge two configuration dictionaries.
 
         Args:
@@ -1336,7 +1336,7 @@ class ConfigManager:
 
         return result
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """Get final merged configuration for the extension.
 
         Merges configuration layers in order:
@@ -1419,7 +1419,7 @@ class HookExecutor:
         self.extensions_dir = project_root / ".specify" / "extensions"
         self.config_file = project_root / ".specify" / "extensions.yml"
 
-    def get_project_config(self) -> Dict[str, Any]:
+    def get_project_config(self) -> dict[str, Any]:
         """Load project-level extension configuration.
 
         Returns:
@@ -1441,7 +1441,7 @@ class HookExecutor:
                 "hooks": {},
             }
 
-    def save_project_config(self, config: Dict[str, Any]):
+    def save_project_config(self, config: dict[str, Any]):
         """Save project-level extension configuration.
 
         Args:
@@ -1528,7 +1528,7 @@ class HookExecutor:
 
         self.save_project_config(config)
 
-    def get_hooks_for_event(self, event_name: str) -> List[Dict[str, Any]]:
+    def get_hooks_for_event(self, event_name: str) -> list[dict[str, Any]]:
         """Get all registered hooks for a specific event.
 
         Args:
@@ -1543,7 +1543,7 @@ class HookExecutor:
         # Filter to enabled hooks only
         return [h for h in hooks if h.get("enabled", True)]
 
-    def should_execute_hook(self, hook: Dict[str, Any]) -> bool:
+    def should_execute_hook(self, hook: dict[str, Any]) -> bool:
         """Determine if a hook should be executed based on its condition.
 
         Args:
@@ -1564,7 +1564,7 @@ class HookExecutor:
             # If condition evaluation fails, default to not executing
             return False
 
-    def _evaluate_condition(self, condition: str, extension_id: Optional[str]) -> bool:
+    def _evaluate_condition(self, condition: str, extension_id: str | None) -> bool:
         """Evaluate a hook condition expression.
 
         Supported condition patterns:
@@ -1640,7 +1640,7 @@ class HookExecutor:
         return False
 
     def format_hook_message(
-        self, event_name: str, hooks: List[Dict[str, Any]]
+        self, event_name: str, hooks: list[dict[str, Any]]
     ) -> str:
         """Format hook execution message for display in command output.
 
@@ -1678,7 +1678,7 @@ class HookExecutor:
 
         return "\n".join(lines)
 
-    def check_hooks_for_event(self, event_name: str) -> Dict[str, Any]:
+    def check_hooks_for_event(self, event_name: str) -> dict[str, Any]:
         """Check for hooks registered for a specific event.
 
         This method is designed to be called by AI agents after core commands complete.
@@ -1720,7 +1720,7 @@ class HookExecutor:
             "message": self.format_hook_message(event_name, executable_hooks)
         }
 
-    def execute_hook(self, hook: Dict[str, Any]) -> Dict[str, Any]:
+    def execute_hook(self, hook: dict[str, Any]) -> dict[str, Any]:
         """Execute a single hook command.
 
         Note: This returns information about how to execute the hook.

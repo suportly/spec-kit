@@ -6,13 +6,12 @@ This module defines the storage interface that all storage backends must impleme
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Optional
 
 from speckit.schemas import (
     Constitution,
     Specification,
-    TechnicalPlan,
     TaskBreakdown,
+    TechnicalPlan,
 )
 
 
@@ -60,7 +59,7 @@ class StorageBase(ABC):
         pass
 
     @abstractmethod
-    def load_constitution(self) -> Optional[Constitution]:
+    def load_constitution(self) -> Constitution | None:
         """
         Load project constitution.
 
@@ -88,7 +87,7 @@ class StorageBase(ABC):
         pass
 
     @abstractmethod
-    def load_specification(self, feature_id: str) -> Optional[Specification]:
+    def load_specification(self, feature_id: str) -> Specification | None:
         """
         Load feature specification.
 
@@ -119,7 +118,7 @@ class StorageBase(ABC):
         pass
 
     @abstractmethod
-    def load_plan(self, feature_id: str) -> Optional[TechnicalPlan]:
+    def load_plan(self, feature_id: str) -> TechnicalPlan | None:
         """
         Load technical implementation plan.
 
@@ -150,7 +149,7 @@ class StorageBase(ABC):
         pass
 
     @abstractmethod
-    def load_tasks(self, feature_id: str) -> Optional[TaskBreakdown]:
+    def load_tasks(self, feature_id: str) -> TaskBreakdown | None:
         """
         Load task breakdown.
 

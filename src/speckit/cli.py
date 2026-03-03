@@ -12,10 +12,8 @@ Usage:
 """
 
 import json
-import sys
 from enum import Enum
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -24,7 +22,6 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
-from speckit.config import LLMConfig, SpecKitConfig
 from speckit.speckit import SpecKit
 
 # Create Typer app
@@ -64,7 +61,7 @@ def get_kit() -> SpecKit:
     return SpecKit(_global_opts.project_path)
 
 
-def output(content: str, format_type: Optional[OutputFormat] = None) -> None:
+def output(content: str, format_type: OutputFormat | None = None) -> None:
     """Output content in the specified format."""
     fmt = format_type or _global_opts.format
 
@@ -82,9 +79,7 @@ def output(content: str, format_type: Optional[OutputFormat] = None) -> None:
 
 def output_json(data: dict) -> None:
     """Output data as JSON."""
-    if _global_opts.format == OutputFormat.JSON:
-        console.print_json(json.dumps(data, indent=2, default=str))
-    elif _global_opts.format != OutputFormat.QUIET:
+    if _global_opts.format == OutputFormat.JSON or _global_opts.format != OutputFormat.QUIET:
         console.print_json(json.dumps(data, indent=2, default=str))
 
 
@@ -105,7 +100,7 @@ def progress_context(description: str):
 
 @app.callback()
 def main(
-    project_path: Optional[Path] = typer.Option(
+    project_path: Path | None = typer.Option(
         None,
         "--project",
         "-p",
@@ -137,7 +132,7 @@ def main(
 
 @app.command()
 def init(
-    project_name: Optional[str] = typer.Option(
+    project_name: str | None = typer.Option(
         None,
         "--name",
         "-n",
@@ -187,7 +182,7 @@ def init(
 @app.command()
 def constitution(
     project_name: str = typer.Argument(..., help="Project name"),
-    principles: Optional[list[str]] = typer.Option(
+    principles: list[str] | None = typer.Option(
         None,
         "--principle",
         "-p",
@@ -226,7 +221,7 @@ def constitution(
 @app.command()
 def specify(
     description: str = typer.Argument(..., help="Feature description"),
-    feature_id: Optional[str] = typer.Option(
+    feature_id: str | None = typer.Option(
         None,
         "--feature-id",
         "-f",

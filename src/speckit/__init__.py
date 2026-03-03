@@ -10,41 +10,41 @@ This library provides tools for the complete specification workflow:
 - Analyze: Check consistency across artifacts
 """
 
-from speckit.speckit import SpecKit
-from speckit.config import LLMConfig, StorageConfig, SpecKitConfig
+from speckit.config import LLMConfig, SpecKitConfig, StorageConfig
+from speckit.llm import LiteLLMProvider, LLMResponse
 from speckit.schemas import (
-    # Enums
-    Priority,
-    TaskStatus,
-    PhaseType,
-    FeatureStatus,
+    AnalysisReport,
+    APIContract,
+    APIEndpoint,
+    ArchitectureComponent,
+    ChecklistItem,
+    ClarificationQuestion,
     # Workflow artifacts
     Constitution,
-    UserStory,
-    FunctionalRequirement,
-    Entity,
-    Specification,
-    TechStack,
-    ArchitectureComponent,
-    TechnicalPlan,
-    Phase,
-    Task,
-    TaskBreakdown,
-    ClarificationQuestion,
-    AnalysisReport,
     # Extended artifacts
     DataModel,
     DataModelEntity,
     DataModelField,
-    ResearchFindings,
-    TechnologyDecision,
-    APIContract,
-    APIEndpoint,
+    Entity,
+    FeatureStatus,
+    FunctionalRequirement,
+    Phase,
+    PhaseType,
+    # Enums
+    Priority,
     QualityChecklist,
-    ChecklistItem,
     QuickstartGuide,
+    ResearchFindings,
+    Specification,
+    Task,
+    TaskBreakdown,
+    TaskStatus,
+    TechnicalPlan,
+    TechnologyDecision,
+    TechStack,
+    UserStory,
 )
-from speckit.llm import LiteLLMProvider, LLMResponse
+from speckit.speckit import SpecKit
 
 __version__ = "0.2.4"
 __all__ = [

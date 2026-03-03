@@ -6,10 +6,9 @@ from feature specifications.
 """
 
 from datetime import datetime
-from typing import Optional
 
 from speckit.llm import LiteLLMProvider
-from speckit.schemas import Constitution, Specification, TechStack, TechnicalPlan
+from speckit.schemas import Constitution, Specification, TechnicalPlan, TechStack
 from speckit.storage.base import StorageBase
 from speckit.templates import render_template
 
@@ -36,9 +35,9 @@ class TechnicalPlanner:
     def plan(
         self,
         specification: Specification,
-        constitution: Optional[Constitution] = None,
-        tech_stack: Optional[TechStack] = None,
-        language: Optional[str] = None,
+        constitution: Constitution | None = None,
+        tech_stack: TechStack | None = None,
+        language: str | None = None,
     ) -> TechnicalPlan:
         """
         Generate a technical plan from a specification.
@@ -77,9 +76,9 @@ class TechnicalPlanner:
     async def plan_async(
         self,
         specification: Specification,
-        constitution: Optional[Constitution] = None,
-        tech_stack: Optional[TechStack] = None,
-        language: Optional[str] = None,
+        constitution: Constitution | None = None,
+        tech_stack: TechStack | None = None,
+        language: str | None = None,
     ) -> TechnicalPlan:
         """Async version of plan()."""
         prompt = render_template(

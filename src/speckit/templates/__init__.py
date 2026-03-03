@@ -6,6 +6,7 @@ generating prompts used in workflow phases.
 """
 
 from pathlib import Path
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 # Template directory

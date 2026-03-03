@@ -9,8 +9,8 @@ from datetime import datetime
 
 from speckit.llm import LiteLLMProvider
 from speckit.schemas import (
-    AnalysisReport,
     AnalysisIssue,
+    AnalysisReport,
     Specification,
     TaskBreakdown,
     TechnicalPlan,
@@ -223,7 +223,7 @@ class ConsistencyAnalyzer:
 
         # DFS-based cycle detection
         WHITE, GRAY, BLACK = 0, 1, 2
-        colors = {task_id: WHITE for task_id in deps}
+        colors = dict.fromkeys(deps, WHITE)
 
         def has_cycle(node: str) -> bool:
             colors[node] = GRAY
@@ -237,9 +237,4 @@ class ConsistencyAnalyzer:
             colors[node] = BLACK
             return False
 
-        for task_id in deps:
-            if colors[task_id] == WHITE:
-                if has_cycle(task_id):
-                    return True
-
-        return False
+        return any(colors[task_id] == WHITE and has_cycle(task_id) for task_id in deps)

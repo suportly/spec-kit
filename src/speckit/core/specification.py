@@ -7,7 +7,6 @@ natural language descriptions.
 
 import re
 from datetime import datetime
-from typing import Optional
 
 from speckit.llm import LiteLLMProvider
 from speckit.schemas import Constitution, Specification
@@ -37,9 +36,9 @@ class SpecificationBuilder:
     def generate(
         self,
         feature_description: str,
-        feature_id: Optional[str] = None,
-        constitution: Optional[Constitution] = None,
-        language: Optional[str] = None,
+        feature_id: str | None = None,
+        constitution: Constitution | None = None,
+        language: str | None = None,
     ) -> Specification:
         """
         Generate a specification from natural language.
@@ -82,9 +81,9 @@ class SpecificationBuilder:
     async def generate_async(
         self,
         feature_description: str,
-        feature_id: Optional[str] = None,
-        constitution: Optional[Constitution] = None,
-        language: Optional[str] = None,
+        feature_id: str | None = None,
+        constitution: Constitution | None = None,
+        language: str | None = None,
     ) -> Specification:
         """Async version of generate()."""
         if feature_id is None:

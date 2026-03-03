@@ -4,13 +4,12 @@ Exception hierarchy for spec-kit.
 This module defines all custom exceptions used throughout the library.
 """
 
-from typing import Optional
 
 
 class SpecKitError(Exception):
     """Base exception for all spec-kit errors."""
 
-    def __init__(self, message: str, details: Optional[dict] = None):
+    def __init__(self, message: str, details: dict | None = None):
         super().__init__(message)
         self.message = message
         self.details = details or {}
@@ -62,9 +61,9 @@ class LLMError(SpecKitError):
     def __init__(
         self,
         message: str,
-        model: Optional[str] = None,
-        provider: Optional[str] = None,
-        original_error: Optional[Exception] = None,
+        model: str | None = None,
+        provider: str | None = None,
+        original_error: Exception | None = None,
     ):
         super().__init__(
             message,
@@ -81,7 +80,7 @@ class LLMRateLimitError(LLMError):
     def __init__(
         self,
         message: str = "Rate limit exceeded",
-        retry_after: Optional[int] = None,
+        retry_after: int | None = None,
         **kwargs,
     ):
         super().__init__(message, **kwargs)
@@ -94,7 +93,7 @@ class LLMTimeoutError(LLMError):
     def __init__(
         self,
         message: str = "Request timed out",
-        timeout: Optional[int] = None,
+        timeout: int | None = None,
         **kwargs,
     ):
         super().__init__(message, **kwargs)
@@ -130,7 +129,7 @@ class ValidationError(SpecKitError):
     def __init__(
         self,
         message: str,
-        errors: Optional[list[dict]] = None,
+        errors: list[dict] | None = None,
     ):
         super().__init__(message, {"errors": errors or []})
         self.errors = errors or []
@@ -184,7 +183,7 @@ class FeatureNotFoundError(StorageError):
 class StorageIOError(StorageError):
     """I/O error in storage operations."""
 
-    def __init__(self, path: str, operation: str, original_error: Optional[Exception] = None):
+    def __init__(self, path: str, operation: str, original_error: Exception | None = None):
         super().__init__(
             f"Storage I/O error during {operation}: {path}",
             {"path": path, "operation": operation},

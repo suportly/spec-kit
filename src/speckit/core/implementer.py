@@ -4,7 +4,6 @@ Implementation tracking for spec-kit.
 This module provides tools to track progress of task implementation.
 """
 
-from typing import Optional
 
 from speckit.schemas import Task, TaskBreakdown, TaskStatus
 from speckit.storage.base import StorageBase
@@ -70,7 +69,7 @@ class ImplementationTracker:
         self,
         breakdown: TaskBreakdown,
         task_id: str,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> TaskBreakdown:
         """
         Mark a task as blocked.

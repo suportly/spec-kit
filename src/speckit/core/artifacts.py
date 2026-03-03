@@ -7,7 +7,6 @@ quality checklists, and quickstart guides.
 """
 
 from datetime import datetime
-from typing import Optional
 
 from speckit.llm import LiteLLMProvider
 from speckit.schemas import (
@@ -54,7 +53,7 @@ class ArtifactGenerator:
         self,
         specification: Specification,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> DataModel:
         """
         Generate database schema and data model.
@@ -91,7 +90,7 @@ class ArtifactGenerator:
         self,
         specification: Specification,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> DataModel:
         """Async version of generate_data_model()."""
         prompt = render_template(
@@ -120,7 +119,7 @@ class ArtifactGenerator:
     def generate_research(
         self,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> ResearchFindings:
         """
         Generate technology research and decision documentation.
@@ -153,7 +152,7 @@ class ArtifactGenerator:
     async def generate_research_async(
         self,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> ResearchFindings:
         """Async version of generate_research()."""
         prompt = render_template(
@@ -181,7 +180,7 @@ class ArtifactGenerator:
         self,
         specification: Specification,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> APIContract:
         """
         Generate API specification with endpoints and schemas.
@@ -218,7 +217,7 @@ class ArtifactGenerator:
         self,
         specification: Specification,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> APIContract:
         """Async version of generate_api_contract()."""
         prompt = render_template(
@@ -247,7 +246,7 @@ class ArtifactGenerator:
     def generate_checklist(
         self,
         specification: Specification,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> QualityChecklist:
         """
         Generate quality validation checklist for specification.
@@ -281,7 +280,7 @@ class ArtifactGenerator:
     async def generate_checklist_async(
         self,
         specification: Specification,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> QualityChecklist:
         """Async version of generate_checklist()."""
         prompt = render_template(
@@ -310,7 +309,7 @@ class ArtifactGenerator:
         self,
         specification: Specification,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> QuickstartGuide:
         """
         Generate quickstart guide for developers.
@@ -347,7 +346,7 @@ class ArtifactGenerator:
         self,
         specification: Specification,
         plan: TechnicalPlan,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> QuickstartGuide:
         """Async version of generate_quickstart()."""
         prompt = render_template(

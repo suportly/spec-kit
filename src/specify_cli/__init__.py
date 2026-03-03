@@ -24,35 +24,35 @@ Or install globally:
     specify init --here
 """
 
+import contextlib
+import json
 import os
+import shlex
+import shutil
+import ssl
 import subprocess
 import sys
-import zipfile
 import tempfile
-import shutil
-import shlex
-import json
-import yaml
+import zipfile
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional, Tuple
 
-import typer
 import httpx
-from rich.console import Console
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.text import Text
-from rich.live import Live
-from rich.align import Align
-from rich.table import Table
-from rich.tree import Tree
-from typer.core import TyperGroup
 
 # For cross-platform keyboard input
 import readchar
-import ssl
 import truststore
-from datetime import datetime, timezone
+import typer
+import yaml
+from rich.align import Align
+from rich.console import Console
+from rich.live import Live
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
+from rich.text import Text
+from rich.tree import Tree
+from typer.core import TyperGroup
 
 ssl_context = truststore.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
 client = httpx.Client(verify=ssl_context)
@@ -69,7 +69,7 @@ def _github_auth_headers(cli_token: str | None = None) -> dict:
 def _parse_rate_limit_headers(headers: httpx.Headers) -> dict:
     """Extract and parse GitHub rate-limit headers."""
     info = {}
-    
+
     # Standard GitHub rate-limit headers
     if "X-RateLimit-Limit" in headers:
         info["limit"] = headers.get("X-RateLimit-Limit")
@@ -78,11 +78,11 @@ def _parse_rate_limit_headers(headers: httpx.Headers) -> dict:
     if "X-RateLimit-Reset" in headers:
         reset_epoch = int(headers.get("X-RateLimit-Reset", "0"))
         if reset_epoch:
-            reset_time = datetime.fromtimestamp(reset_epoch, tz=timezone.utc)
+            reset_time = datetime.fromtimestamp(reset_epoch, tz=UTC)
             info["reset_epoch"] = reset_epoch
             info["reset_time"] = reset_time
             info["reset_local"] = reset_time.astimezone()
-    
+
     # Retry-After header (seconds or HTTP-date)
     if "Retry-After" in headers:
         retry_after = headers.get("Retry-After")
@@ -91,16 +91,16 @@ def _parse_rate_limit_headers(headers: httpx.Headers) -> dict:
         except ValueError:
             # HTTP-date format - not implemented, just store as string
             info["retry_after"] = retry_after
-    
+
     return info
 
 def _format_rate_limit_error(status_code: int, headers: httpx.Headers, url: str) -> str:
     """Format a user-friendly error message with rate-limit information."""
     rate_info = _parse_rate_limit_headers(headers)
-    
+
     lines = [f"GitHub API returned status {status_code} for {url}"]
     lines.append("")
-    
+
     if rate_info:
         lines.append("[bold]Rate Limit Information:[/bold]")
         if "limit" in rate_info:
@@ -113,14 +113,14 @@ def _format_rate_limit_error(status_code: int, headers: httpx.Headers, url: str)
         if "retry_after_seconds" in rate_info:
             lines.append(f"  • Retry after: {rate_info['retry_after_seconds']} seconds")
         lines.append("")
-    
+
     # Add troubleshooting guidance
     lines.append("[bold]Troubleshooting Tips:[/bold]")
     lines.append("  • If you're on a shared CI or corporate environment, you may be rate-limited.")
     lines.append("  • Consider using a GitHub token via --github-token or the GH_TOKEN/GITHUB_TOKEN")
     lines.append("    environment variable to increase rate limits.")
     lines.append("  • Authenticated requests have a limit of 5,000/hour vs 60/hour for unauthenticated.")
-    
+
     return "\n".join(lines)
 
 # Agent configuration with name, folder, install URL, CLI tool requirement, and commands subdirectory
@@ -267,10 +267,10 @@ CLAUDE_LOCAL_PATH = Path.home() / ".claude" / "local" / "claude"
 BANNER = """
 ███████╗██████╗ ███████╗ ██████╗██╗███████╗██╗   ██╗
 ██╔════╝██╔══██╗██╔════╝██╔════╝██║██╔════╝╚██╗ ██╔╝
-███████╗██████╔╝█████╗  ██║     ██║█████╗   ╚████╔╝ 
-╚════██║██╔═══╝ ██╔══╝  ██║     ██║██╔══╝    ╚██╔╝  
-███████║██║     ███████╗╚██████╗██║██║        ██║   
-╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝   
+███████╗██████╔╝█████╗  ██║     ██║█████╗   ╚████╔╝
+╚════██║██╔═══╝ ██╔══╝  ██║     ██║██╔══╝    ╚██╔╝
+███████║██║     ███████╗╚██████╗██║██║        ██║
+╚══════╝╚═╝     ╚══════╝ ╚═════╝╚═╝╚═╝        ╚═╝
 """
 
 TAGLINE = "GitHub Spec Kit - Spec-Driven Development Toolkit"
@@ -318,10 +318,8 @@ class StepTracker:
 
     def _maybe_refresh(self):
         if self._refresh_cb:
-            try:
+            with contextlib.suppress(Exception):
                 self._refresh_cb()
-            except Exception:
-                pass
 
     def render(self):
         tree = Tree(f"[cyan]{self.title}[/cyan]", guide_style="grey50")
@@ -382,12 +380,12 @@ def get_key():
 def select_with_arrows(options: dict, prompt_text: str = "Select an option", default_key: str = None) -> str:
     """
     Interactive selection using arrow keys with Rich Live display.
-    
+
     Args:
         options: Dict with keys as option keys and values as descriptions
         prompt_text: Text to show above the options
         default_key: Default option key to start with
-        
+
     Returns:
         Selected option key
     """
@@ -495,7 +493,7 @@ def callback(ctx: typer.Context):
         console.print(Align.center("[dim]Run 'specify --help' for usage information[/dim]"))
         console.print()
 
-def run_command(cmd: list[str], check_return: bool = True, capture: bool = False, shell: bool = False) -> Optional[str]:
+def run_command(cmd: list[str], check_return: bool = True, capture: bool = False, shell: bool = False) -> str | None:
     """Run a shell command and optionally capture output."""
     try:
         if capture:
@@ -515,11 +513,11 @@ def run_command(cmd: list[str], check_return: bool = True, capture: bool = False
 
 def check_tool(tool: str, tracker: StepTracker = None) -> bool:
     """Check if a tool is installed. Optionally update tracker.
-    
+
     Args:
         tool: Name of the tool to check
         tracker: Optional StepTracker to update with results
-        
+
     Returns:
         True if tool is found, False otherwise
     """
@@ -528,27 +526,26 @@ def check_tool(tool: str, tracker: StepTracker = None) -> bool:
     # The migrate-installer command REMOVES the original executable from PATH
     # and creates an alias at ~/.claude/local/claude instead
     # This path should be prioritized over other claude executables in PATH
-    if tool == "claude":
-        if CLAUDE_LOCAL_PATH.exists() and CLAUDE_LOCAL_PATH.is_file():
-            if tracker:
-                tracker.complete(tool, "available")
-            return True
-    
+    if tool == "claude" and CLAUDE_LOCAL_PATH.exists() and CLAUDE_LOCAL_PATH.is_file():
+        if tracker:
+            tracker.complete(tool, "available")
+        return True
+
     found = shutil.which(tool) is not None
-    
+
     if tracker:
         if found:
             tracker.complete(tool, "available")
         else:
             tracker.error(tool, "not found")
-    
+
     return found
 
 def is_git_repo(path: Path = None) -> bool:
     """Check if the specified path is inside a git repository."""
     if path is None:
         path = Path.cwd()
-    
+
     if not path.is_dir():
         return False
 
@@ -564,13 +561,13 @@ def is_git_repo(path: Path = None) -> bool:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
-def init_git_repo(project_path: Path, quiet: bool = False) -> Tuple[bool, Optional[str]]:
+def init_git_repo(project_path: Path, quiet: bool = False) -> tuple[bool, str | None]:
     """Initialize a git repository in the specified path.
-    
+
     Args:
         project_path: Path to initialize git repository in
         quiet: if True suppress console output (tracker handles status)
-    
+
     Returns:
         Tuple of (success: bool, error_message: Optional[str])
     """
@@ -592,7 +589,7 @@ def init_git_repo(project_path: Path, quiet: bool = False) -> Tuple[bool, Option
             error_msg += f"\nError: {e.stderr.strip()}"
         elif e.stdout:
             error_msg += f"\nOutput: {e.stdout.strip()}"
-        
+
         if not quiet:
             console.print(f"[red]Error initializing git repository:[/red] {e}")
         return False, error_msg
@@ -606,7 +603,7 @@ def handle_vscode_settings(sub_item, dest_file, rel_path, verbose=False, tracker
             console.print(f"[{color}]{message}[/] {rel_path}")
 
     try:
-        with open(sub_item, 'r', encoding='utf-8') as f:
+        with open(sub_item, encoding='utf-8') as f:
             new_settings = json.load(f)
 
         if dest_file.exists():
@@ -641,7 +638,7 @@ def merge_json_files(existing_path: Path, new_content: dict, verbose: bool = Fal
         Merged JSON content as dict
     """
     try:
-        with open(existing_path, 'r', encoding='utf-8') as f:
+        with open(existing_path, encoding='utf-8') as f:
             existing_content = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         # If file doesn't exist or is invalid, just use new content
@@ -666,7 +663,7 @@ def merge_json_files(existing_path: Path, new_content: dict, verbose: bool = Fal
 
     return merged
 
-def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> Tuple[Path, dict]:
+def download_template_from_github(ai_assistant: str, download_dir: Path, *, script_type: str = "sh", verbose: bool = True, show_progress: bool = True, client: httpx.Client = None, debug: bool = False, github_token: str = None) -> tuple[Path, dict]:
     repo_owner = "github"
     repo_name = "spec-kit"
     if client is None:
@@ -1228,7 +1225,7 @@ def init(
 ):
     """
     Initialize a new Specify project from the latest template.
-    
+
     This command will:
     1. Check that required tools are installed (git is optional)
     2. Let you choose your AI assistant
@@ -1236,7 +1233,7 @@ def init(
     4. Extract the template to a new project directory or current directory
     5. Initialize a fresh git repository (if not --no-git and no existing repo)
     6. Optionally set up AI assistant commands
-    
+
     Examples:
         specify init my-project
         specify init my-project --ai claude
@@ -1263,7 +1260,7 @@ def init(
         console.print("[yellow]Example:[/yellow] specify init --ai claude --here")
         console.print(f"[yellow]Available agents:[/yellow] {', '.join(AGENT_CONFIG.keys())}")
         raise typer.Exit(1)
-    
+
     if ai_commands_dir and ai_commands_dir.startswith("--"):
         console.print(f"[red]Error:[/red] Invalid value for --ai-commands-dir: '{ai_commands_dir}'")
         console.print("[yellow]Hint:[/yellow] Did you forget to provide a value for --ai-commands-dir?")
@@ -1345,8 +1342,8 @@ def init(
         # Create options dict for selection (agent_key: display_name)
         ai_choices = {key: config["name"] for key, config in AGENT_CONFIG.items()}
         selected_ai = select_with_arrows(
-            ai_choices, 
-            "Choose your AI assistant:", 
+            ai_choices,
+            "Choose your AI assistant:",
             "copilot"
         )
 
@@ -1511,7 +1508,7 @@ def init(
 
     console.print(tracker.render())
     console.print("\n[bold green]Project ready.[/bold green]")
-    
+
     # Show git error details if initialization failed
     if git_error_message:
         console.print()
@@ -1560,7 +1557,7 @@ def init(
             cmd = f"setx CODEX_HOME {quoted_path}"
         else:  # Unix-like systems
             cmd = f"export CODEX_HOME={quoted_path}"
-        
+
         steps_lines.append(f"{step_num}. Set [cyan]CODEX_HOME[/cyan] environment variable before running Codex: [cyan]{cmd}[/cyan]")
         step_num += 1
 
@@ -1634,11 +1631,11 @@ def check():
 @app.command()
 def version():
     """Display version and system information."""
-    import platform
     import importlib.metadata
-    
+    import platform
+
     show_banner()
-    
+
     # Get CLI version from package metadata
     cli_version = "unknown"
     try:
@@ -1654,15 +1651,15 @@ def version():
                     cli_version = data.get("project", {}).get("version", "unknown")
         except Exception:
             pass
-    
+
     # Fetch latest template release version
     repo_owner = "github"
     repo_name = "spec-kit"
     api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/releases/latest"
-    
+
     template_version = "unknown"
     release_date = "unknown"
-    
+
     try:
         response = client.get(
             api_url,
@@ -1789,10 +1786,16 @@ def extension_list(
 def extension_add(
     extension: str = typer.Argument(help="Extension name or path"),
     dev: bool = typer.Option(False, "--dev", help="Install from local directory"),
-    from_url: Optional[str] = typer.Option(None, "--from", help="Install from custom URL"),
+    from_url: str | None = typer.Option(None, "--from", help="Install from custom URL"),
 ):
     """Install an extension."""
-    from .extensions import ExtensionManager, ExtensionCatalog, ExtensionError, ValidationError, CompatibilityError
+    from .extensions import (
+        CompatibilityError,
+        ExtensionCatalog,
+        ExtensionError,
+        ExtensionManager,
+        ValidationError,
+    )
 
     project_root = Path.cwd()
 
@@ -1823,8 +1826,8 @@ def extension_add(
 
             elif from_url:
                 # Install from URL (ZIP file)
-                import urllib.request
                 import urllib.error
+                import urllib.request
                 from urllib.parse import urlparse
 
                 # Validate URL
@@ -1972,8 +1975,8 @@ def extension_remove(
 @extension_app.command("search")
 def extension_search(
     query: str = typer.Argument(None, help="Search query (optional)"),
-    tag: Optional[str] = typer.Option(None, "--tag", help="Filter by tag"),
-    author: Optional[str] = typer.Option(None, "--author", help="Filter by author"),
+    tag: str | None = typer.Option(None, "--tag", help="Filter by tag"),
+    author: str | None = typer.Option(None, "--author", help="Filter by author"),
     verified: bool = typer.Option(False, "--verified", help="Show only verified extensions"),
 ):
     """Search for available extensions in catalog."""
@@ -2045,7 +2048,7 @@ def extension_info(
     extension: str = typer.Argument(help="Extension ID or name"),
 ):
     """Show detailed information about an extension."""
-    from .extensions import ExtensionCatalog, ExtensionManager, ExtensionError
+    from .extensions import ExtensionCatalog, ExtensionError, ExtensionManager
 
     project_root = Path.cwd()
 
@@ -2153,8 +2156,9 @@ def extension_update(
     extension: str = typer.Argument(None, help="Extension ID to update (or all)"),
 ):
     """Update extension(s) to latest version."""
-    from .extensions import ExtensionManager, ExtensionCatalog, ExtensionError
     from packaging import version as pkg_version
+
+    from .extensions import ExtensionCatalog, ExtensionError, ExtensionManager
 
     project_root = Path.cwd()
 

@@ -6,7 +6,6 @@ from technical plans.
 """
 
 from datetime import datetime
-from typing import Optional
 
 from speckit.llm import LiteLLMProvider
 from speckit.schemas import Phase, Specification, Task, TaskBreakdown, TechnicalPlan
@@ -36,9 +35,9 @@ class TaskGenerator:
     def generate(
         self,
         plan: TechnicalPlan,
-        specification: Optional[Specification] = None,
+        specification: Specification | None = None,
         parallel_friendly: bool = True,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> TaskBreakdown:
         """
         Generate tasks from a technical plan.
@@ -83,9 +82,9 @@ class TaskGenerator:
     async def generate_async(
         self,
         plan: TechnicalPlan,
-        specification: Optional[Specification] = None,
+        specification: Specification | None = None,
         parallel_friendly: bool = True,
-        language: Optional[str] = None,
+        language: str | None = None,
     ) -> TaskBreakdown:
         """Async version of generate()."""
         prompt = render_template(

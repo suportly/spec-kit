@@ -15,12 +15,12 @@ Tools exposed:
 """
 
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 try:
     from mcp.server import Server
     from mcp.server.stdio import stdio_server
-    from mcp.types import Tool, TextContent
+    from mcp.types import TextContent, Tool
 
     MCP_AVAILABLE = True
 except ImportError:
@@ -30,7 +30,7 @@ except ImportError:
 from speckit.speckit import SpecKit
 
 
-def create_server(project_path: Optional[Path] = None) -> Any:
+def create_server(project_path: Path | None = None) -> Any:
     """
     Create and configure the MCP server.
 
@@ -269,7 +269,7 @@ def create_server(project_path: Optional[Path] = None) -> Any:
     return server
 
 
-async def run_server(project_path: Optional[Path] = None):
+async def run_server(project_path: Path | None = None):
     """Run the MCP server."""
     server = create_server(project_path)
     async with stdio_server() as (read_stream, write_stream):

@@ -12,28 +12,22 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 from speckit.schemas import (
+    APIContract,
     Constitution,
-    Specification,
-    TechnicalPlan,
-    TaskBreakdown,
-    UserStory,
-    FunctionalRequirement,
-    Entity,
-    Task,
-    TechStack,
-    ArchitectureComponent,
-    Priority,
-    TaskStatus,
-    PhaseType,
     # Extended artifacts
     DataModel,
-    ResearchFindings,
-    APIContract,
+    PhaseType,
     QualityChecklist,
     QuickstartGuide,
+    ResearchFindings,
+    Specification,
+    Task,
+    TaskBreakdown,
+    TaskStatus,
+    TechnicalPlan,
+    TechStack,
 )
 from speckit.storage.base import StorageBase
 
@@ -84,7 +78,7 @@ class FileStorage(StorageBase):
         self.config_path.mkdir(parents=True, exist_ok=True)
         self.specs_path.mkdir(parents=True, exist_ok=True)
 
-    def _create_backup(self, file_path: Path) -> Optional[Path]:
+    def _create_backup(self, file_path: Path) -> Path | None:
         """
         Create a backup of an existing file.
 
@@ -112,7 +106,7 @@ class FileStorage(StorageBase):
         file_path.write_text(content, encoding="utf-8")
         return file_path
 
-    def load_constitution(self) -> Optional[Constitution]:
+    def load_constitution(self) -> Constitution | None:
         """Load project constitution from Markdown file."""
         file_path = self.config_path / self.CONSTITUTION_FILE
         if not file_path.exists():
@@ -181,7 +175,7 @@ class FileStorage(StorageBase):
         file_path.write_text(content, encoding="utf-8")
         return file_path
 
-    def load_specification(self, feature_id: str) -> Optional[Specification]:
+    def load_specification(self, feature_id: str) -> Specification | None:
         """Load feature specification from Markdown file."""
         file_path = self.get_feature_path(feature_id) / self.SPEC_FILE
         if not file_path.exists():
@@ -244,7 +238,7 @@ class FileStorage(StorageBase):
         file_path.write_text(content, encoding="utf-8")
         return file_path
 
-    def load_plan(self, feature_id: str) -> Optional[TechnicalPlan]:
+    def load_plan(self, feature_id: str) -> TechnicalPlan | None:
         """Load technical plan from Markdown file."""
         file_path = self.get_feature_path(feature_id) / self.PLAN_FILE
         if not file_path.exists():
@@ -304,7 +298,7 @@ class FileStorage(StorageBase):
         file_path.write_text(content, encoding="utf-8")
         return file_path
 
-    def load_tasks(self, feature_id: str) -> Optional[TaskBreakdown]:
+    def load_tasks(self, feature_id: str) -> TaskBreakdown | None:
         """Load task breakdown from Markdown file."""
         file_path = self.get_feature_path(feature_id) / self.TASKS_FILE
         if not file_path.exists():
@@ -376,7 +370,7 @@ class FileStorage(StorageBase):
 
     def load_specification_from_content(
         self, content: str, feature_id: str = "external"
-    ) -> Optional[Specification]:
+    ) -> Specification | None:
         """Parse specification from markdown content.
 
         Args:
@@ -393,7 +387,7 @@ class FileStorage(StorageBase):
 
     def load_plan_from_content(
         self, content: str, feature_id: str = "external"
-    ) -> Optional[TechnicalPlan]:
+    ) -> TechnicalPlan | None:
         """Parse technical plan from markdown content.
 
         Args:
@@ -410,7 +404,7 @@ class FileStorage(StorageBase):
 
     def load_tasks_from_content(
         self, content: str, feature_id: str = "external"
-    ) -> Optional[TaskBreakdown]:
+    ) -> TaskBreakdown | None:
         """Parse task breakdown from markdown content.
 
         Args:

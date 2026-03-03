@@ -10,7 +10,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-from speckit.mcp.server import run_server, MCP_AVAILABLE
+from speckit.mcp.server import MCP_AVAILABLE, run_server
 
 
 def main():

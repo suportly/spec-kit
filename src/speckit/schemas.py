@@ -9,10 +9,9 @@ This module defines the data models for:
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
-
 
 # =============================================================================
 # Enumerations
@@ -304,8 +303,8 @@ class TechStack(BaseModel):
 
     language: str  # e.g., "Python 3.11"
     framework: str = ""  # e.g., "Typer"
-    database: Optional[str] = None  # e.g., "PostgreSQL" or None
-    orm: Optional[str] = None  # e.g., "SQLAlchemy" or None
+    database: str | None = None  # e.g., "PostgreSQL" or None
+    orm: str | None = None  # e.g., "SQLAlchemy" or None
     testing: str = "pytest"
     additional_tools: list[str] = Field(default_factory=list)
 
@@ -441,7 +440,7 @@ class Task(BaseModel):
     priority: str = "P2"  # P1 = critical, P2 = important, P3 = nice to have
 
     # Traceability
-    user_story_id: Optional[str] = None  # Links to UserStory.id
+    user_story_id: str | None = None  # Links to UserStory.id
     requirement_ids: list[str] = Field(default_factory=list)  # Links to FunctionalRequirement.id
 
     # Execution details
@@ -506,7 +505,7 @@ class Phase(BaseModel):
     purpose: str = ""  # Brief description of what this phase accomplishes
     is_mvp: bool = False  # True if this phase is part of MVP
     checkpoint: str = ""  # Validation checkpoint at end of phase
-    user_story_id: Optional[str] = None  # Link to user story if applicable
+    user_story_id: str | None = None  # Link to user story if applicable
     priority: str = ""  # P1, P2, P3 if user story phase
 
     def to_markdown_header(self) -> str:
@@ -758,8 +757,8 @@ class ClarificationQuestion(BaseModel):
     question: str
     context: str = ""  # Why this needs clarification
     options: list[str] = Field(default_factory=list)  # Suggested answers
-    answer: Optional[str] = None
-    answered_at: Optional[datetime] = None
+    answer: str | None = None
+    answered_at: datetime | None = None
 
     def to_markdown(self) -> str:
         """Export question to Markdown format."""
@@ -866,7 +865,7 @@ class LLMResponse(BaseModel):
     content: str
     model: str
     usage: dict[str, int] = Field(default_factory=dict)  # Token counts
-    raw_response: Optional[Any] = None  # Original API response
+    raw_response: Any | None = None  # Original API response
 
 
 class GeneratedArtifact(BaseModel):
@@ -896,8 +895,8 @@ class DataModelField(BaseModel):
     is_required: bool = True
     is_primary_key: bool = False
     is_foreign_key: bool = False
-    foreign_key_target: Optional[str] = None  # e.g., "User.id"
-    default_value: Optional[str] = None
+    foreign_key_target: str | None = None  # e.g., "User.id"
+    default_value: str | None = None
     constraints: list[str] = Field(default_factory=list)  # e.g., ["unique", "indexed"]
 
     def to_markdown(self) -> str:
@@ -974,8 +973,8 @@ class DataModel(BaseModel):
     # Content
     overview: str = ""
     entities: list[DataModelEntity] = Field(default_factory=list)
-    database_type: Optional[str] = None  # e.g., "PostgreSQL", "MySQL", "MongoDB"
-    orm_framework: Optional[str] = None  # e.g., "SQLAlchemy", "Prisma", "TypeORM"
+    database_type: str | None = None  # e.g., "PostgreSQL", "MySQL", "MongoDB"
+    orm_framework: str | None = None  # e.g., "SQLAlchemy", "Prisma", "TypeORM"
     migration_notes: list[str] = Field(default_factory=list)
 
     def to_markdown(self) -> str:
@@ -1075,7 +1074,7 @@ class ResearchFindings(BaseModel):
     # Content
     overview: str = ""
     decisions: list[TechnologyDecision] = Field(default_factory=list)
-    tech_stack_summary: Optional[str] = None
+    tech_stack_summary: str | None = None
     implementation_patterns: list[str] = Field(default_factory=list)
     references: list[str] = Field(default_factory=list)  # Links to docs, articles
 
@@ -1123,8 +1122,8 @@ class APIEndpoint(BaseModel):
     path: str  # e.g., "/api/v2/specifications"
     summary: str
     description: str = ""
-    request_body: Optional[dict] = None  # JSON schema or example
-    response_schema: Optional[dict] = None  # JSON schema or example
+    request_body: dict | None = None  # JSON schema or example
+    response_schema: dict | None = None  # JSON schema or example
     error_responses: dict[str, str] = Field(default_factory=dict)  # status code -> description
     authentication_required: bool = True
 
@@ -1180,7 +1179,7 @@ class APIContract(BaseModel):
     api_type: str = "REST"  # REST, GraphQL, gRPC, WebSocket
     endpoints: list[APIEndpoint] = Field(default_factory=list)
     authentication_method: str = "Bearer Token"  # JWT, API Key, OAuth2
-    rate_limiting: Optional[str] = None
+    rate_limiting: str | None = None
     versioning_strategy: str = "URL Path"  # URL Path, Header, Query Parameter
 
     def to_markdown(self) -> str:
@@ -1223,7 +1222,7 @@ class ChecklistItem(BaseModel):
     id: str
     criterion: str
     status: str = "PENDING"  # PASS, FAIL, PENDING
-    details: Optional[str] = None
+    details: str | None = None
 
     def to_markdown(self) -> str:
         """Export checklist item to Markdown format."""
@@ -1253,7 +1252,7 @@ class QualityChecklist(BaseModel):
     def to_markdown(self) -> str:
         """Export checklist to Markdown format."""
         lines = [
-            f"# Specification Quality Checklist",
+            "# Specification Quality Checklist",
             "",
             f"**Feature**: {self.feature_name} ({self.feature_id})",
             f"**Generated**: {self.created_at.isoformat()}",

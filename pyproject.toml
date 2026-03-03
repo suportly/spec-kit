@@ -51,6 +51,10 @@ dev = [
     "ruff>=0.3.0",
     "mypy>=1.8.0",
 ]
+test = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
 all = [
     "speckit-ai[mcp,dev]",
 ]
@@ -93,6 +97,9 @@ ignore = [
     "E501",   # line too long (handled by formatter)
     "B008",   # do not perform function calls in argument defaults
     "B904",   # raise without from inside except
+    "ARG001", # unused function argument (intentional in API contracts)
+    "ARG002", # unused method argument (intentional in API contracts)
+    "SIM102", # collapsible-if (readability preference)
 ]
 
 [tool.ruff.lint.isort]

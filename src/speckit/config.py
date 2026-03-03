@@ -12,7 +12,7 @@ Configuration precedence (highest to lowest):
 """
 
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal
 
 import yaml
 from pydantic import Field
@@ -29,8 +29,8 @@ class LLMConfig(BaseSettings):
     )
 
     model: str = Field(default="gpt-4o-mini", description="LiteLLM model identifier")
-    api_key: Optional[str] = Field(default=None, description="API key override (uses env vars by default)")
-    api_base: Optional[str] = Field(default=None, description="Custom API endpoint")
+    api_key: str | None = Field(default=None, description="API key override (uses env vars by default)")
+    api_base: str | None = Field(default=None, description="Custom API endpoint")
     temperature: float = Field(default=0.7, ge=0.0, le=2.0, description="Sampling temperature")
     max_tokens: int = Field(default=4096, gt=0, description="Maximum tokens in response")
     timeout: int = Field(default=120, gt=0, description="Request timeout in seconds")
@@ -115,7 +115,7 @@ class SpecKitConfig(BaseSettings):
 
         return cls(**config_data)
 
-    def save(self, config_file: Optional[Path] = None) -> None:
+    def save(self, config_file: Path | None = None) -> None:
         """
         Save configuration to YAML file.
 

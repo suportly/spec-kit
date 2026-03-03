@@ -13,7 +13,6 @@ Example:
 """
 
 from pathlib import Path
-from typing import Optional
 
 from speckit.config import LLMConfig, SpecKitConfig
 from speckit.llm import LiteLLMProvider
@@ -28,8 +27,8 @@ from speckit.schemas import (
     ResearchFindings,
     Specification,
     TaskBreakdown,
-    TechStack,
     TechnicalPlan,
+    TechStack,
 )
 from speckit.storage.file_storage import FileStorage
 
@@ -55,8 +54,8 @@ class SpecKit:
     def __init__(
         self,
         project_path: str | Path,
-        config: Optional[SpecKitConfig] = None,
-        llm_config: Optional[LLMConfig] = None,
+        config: SpecKitConfig | None = None,
+        llm_config: LLMConfig | None = None,
     ):
         """
         Initialize SpecKit.
@@ -88,8 +87,8 @@ class SpecKit:
         self.config.project_path = project_path
 
         # Initialize components
-        self._llm: Optional[LiteLLMProvider] = None
-        self._storage: Optional[FileStorage] = None
+        self._llm: LiteLLMProvider | None = None
+        self._storage: FileStorage | None = None
 
         # Lazy-load core modules
         self._constitution_manager = None
@@ -126,7 +125,7 @@ class SpecKit:
     def constitution(
         self,
         project_name: str,
-        principles: Optional[list[str]] = None,
+        principles: list[str] | None = None,
         interactive: bool = False,
     ) -> Constitution:
         """
@@ -158,7 +157,7 @@ class SpecKit:
     def specify(
         self,
         feature_description: str,
-        feature_id: Optional[str] = None,
+        feature_id: str | None = None,
     ) -> Specification:
         """
         Generate a feature specification from natural language.
@@ -196,7 +195,7 @@ class SpecKit:
     async def specify_async(
         self,
         feature_description: str,
-        feature_id: Optional[str] = None,
+        feature_id: str | None = None,
     ) -> Specification:
         """Async version of specify()."""
         from speckit.core.specification import SpecificationBuilder
@@ -277,7 +276,7 @@ class SpecKit:
     def plan(
         self,
         specification: Specification,
-        tech_stack: Optional[TechStack] = None,
+        tech_stack: TechStack | None = None,
     ) -> TechnicalPlan:
         """
         Generate technical implementation plan.
@@ -307,7 +306,7 @@ class SpecKit:
     async def plan_async(
         self,
         specification: Specification,
-        tech_stack: Optional[TechStack] = None,
+        tech_stack: TechStack | None = None,
     ) -> TechnicalPlan:
         """Async version of plan()."""
         from speckit.core.planner import TechnicalPlanner
@@ -417,7 +416,7 @@ class SpecKit:
     def save(
         self,
         artifact: Constitution | Specification | TechnicalPlan | TaskBreakdown,
-        feature_id: Optional[str] = None,
+        feature_id: str | None = None,
     ) -> Path:
         """
         Save an artifact to storage.
@@ -443,15 +442,15 @@ class SpecKit:
         else:
             raise TypeError(f"Unknown artifact type: {type(artifact)}")
 
-    def load_specification(self, feature_id: str) -> Optional[Specification]:
+    def load_specification(self, feature_id: str) -> Specification | None:
         """Load a specification by feature ID."""
         return self.storage.load_specification(feature_id)
 
-    def load_plan(self, feature_id: str) -> Optional[TechnicalPlan]:
+    def load_plan(self, feature_id: str) -> TechnicalPlan | None:
         """Load a plan by feature ID."""
         return self.storage.load_plan(feature_id)
 
-    def load_tasks(self, feature_id: str) -> Optional[TaskBreakdown]:
+    def load_tasks(self, feature_id: str) -> TaskBreakdown | None:
         """Load tasks by feature ID."""
         return self.storage.load_tasks(feature_id)
 

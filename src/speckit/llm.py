@@ -10,8 +10,9 @@ This module provides:
 """
 
 import time
+from collections.abc import AsyncIterator, Iterator
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator, Iterator, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
 import litellm
 from pydantic import BaseModel
@@ -103,7 +104,7 @@ class LiteLLMProvider:
     def complete(
         self,
         prompt: str,
-        system: Optional[str] = None,
+        system: str | None = None,
         **kwargs,
     ) -> LLMResponse:
         """
@@ -133,7 +134,7 @@ class LiteLLMProvider:
     async def complete_async(
         self,
         prompt: str,
-        system: Optional[str] = None,
+        system: str | None = None,
         **kwargs,
     ) -> LLMResponse:
         """
@@ -160,8 +161,8 @@ class LiteLLMProvider:
     def complete_structured(
         self,
         prompt: str,
-        response_model: Type[T],
-        system: Optional[str] = None,
+        response_model: type[T],
+        system: str | None = None,
         **kwargs,
     ) -> T:
         """
@@ -209,8 +210,8 @@ class LiteLLMProvider:
     async def complete_structured_async(
         self,
         prompt: str,
-        response_model: Type[T],
-        system: Optional[str] = None,
+        response_model: type[T],
+        system: str | None = None,
         **kwargs,
     ) -> T:
         """
@@ -256,7 +257,7 @@ class LiteLLMProvider:
     def stream(
         self,
         prompt: str,
-        system: Optional[str] = None,
+        system: str | None = None,
         **kwargs,
     ) -> Iterator[str]:
         """
@@ -291,7 +292,7 @@ class LiteLLMProvider:
     async def stream_async(
         self,
         prompt: str,
-        system: Optional[str] = None,
+        system: str | None = None,
         **kwargs,
     ) -> AsyncIterator[str]:
         """
@@ -329,7 +330,7 @@ class LiteLLMProvider:
         models_to_try = [self.config.model] + self.config.fallback_models
         last_error = None
 
-        for attempt, model in enumerate(models_to_try):
+        for _attempt, model in enumerate(models_to_try):
             try:
                 kwargs["model"] = model
                 response = self._execute_with_retry(kwargs)
@@ -360,7 +361,7 @@ class LiteLLMProvider:
     def _complete_structured_with_fallback(
         self,
         kwargs: dict,
-        response_model: Type[T],
+        response_model: type[T],
     ) -> T:
         """Execute structured completion with automatic fallback."""
         models_to_try = [self.config.model] + self.config.fallback_models
@@ -396,7 +397,7 @@ class LiteLLMProvider:
                 if attempt < self.config.max_retries:
                     continue
                 raise
-            except Exception as e:
+            except Exception:
                 # Don't retry other errors
                 raise
 
@@ -423,7 +424,7 @@ class LiteLLMProvider:
                 if attempt < self.config.max_retries:
                     continue
                 raise
-            except Exception as e:
+            except Exception:
                 raise
 
         raise last_error or Exception("Max retries exceeded")

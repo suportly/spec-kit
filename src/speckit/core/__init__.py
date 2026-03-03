@@ -11,13 +11,13 @@ This module contains the business logic for each workflow phase:
 - ConsistencyAnalyzer: Check consistency across artifacts
 """
 
-from speckit.core.constitution import ConstitutionManager
-from speckit.core.specification import SpecificationBuilder
-from speckit.core.clarifier import ClarificationEngine
-from speckit.core.planner import TechnicalPlanner
-from speckit.core.tasker import TaskGenerator
-from speckit.core.implementer import ImplementationTracker
 from speckit.core.analyzer import ConsistencyAnalyzer
+from speckit.core.clarifier import ClarificationEngine
+from speckit.core.constitution import ConstitutionManager
+from speckit.core.implementer import ImplementationTracker
+from speckit.core.planner import TechnicalPlanner
+from speckit.core.specification import SpecificationBuilder
+from speckit.core.tasker import TaskGenerator
 
 __all__ = [
     "ConstitutionManager",
