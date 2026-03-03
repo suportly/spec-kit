@@ -12,7 +12,7 @@ Usage:
 """
 
 import json
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 import typer
@@ -36,7 +36,7 @@ console = Console()
 err_console = Console(stderr=True)
 
 
-class OutputFormat(str, Enum):
+class OutputFormat(StrEnum):
     """Output format options."""
 
     RICH = "rich"

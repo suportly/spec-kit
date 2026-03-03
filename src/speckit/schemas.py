@@ -8,7 +8,7 @@ This module defines the data models for:
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field
 # =============================================================================
 
 
-class Priority(str, Enum):
+class Priority(StrEnum):
     """MoSCoW prioritization for requirements and user stories."""
 
     MUST = "must"  # P1 - Critical for MVP
@@ -27,7 +27,7 @@ class Priority(str, Enum):
     WONT = "wont"  # Explicitly excluded from scope
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     """Status of implementation tasks."""
 
     PENDING = "pending"  # Not started
@@ -37,7 +37,7 @@ class TaskStatus(str, Enum):
     SKIPPED = "skipped"  # Intentionally not done
 
 
-class PhaseType(str, Enum):
+class PhaseType(StrEnum):
     """Implementation phases for task organization."""
 
     SETUP = "setup"  # Project initialization
@@ -47,7 +47,7 @@ class PhaseType(str, Enum):
     POLISH = "polish"  # Refinements and docs
 
 
-class FeatureStatus(str, Enum):
+class FeatureStatus(StrEnum):
     """Status of a feature in the spec-driven workflow."""
 
     DRAFT = "draft"  # Initial specification
